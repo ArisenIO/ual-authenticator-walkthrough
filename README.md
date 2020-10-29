@@ -1,18 +1,18 @@
 # UAL New Authenticator Walkthrough 🔐
 
-This tutorial walks through the steps required to create a [UAL](https://github.com/EOSIO/universal-authenticator-library) for Ledger [Authenticator](https://github.com/EOSIO/universal-authenticator-library/blob/develop/src/Authenticator.ts). 
+This tutorial walks through the steps required to create a [UAL](https://github.com/ARISEN/universal-authenticator-library) for Ledger [Authenticator](https://github.com/ARISEN/universal-authenticator-library/blob/develop/src/Authenticator.ts). 
 
-![EOSIO Labs](https://img.shields.io/badge/EOSIO-Labs-5cb3ff.svg)
+![ARISEN Labs](https://img.shields.io/badge/ARISEN-Labs-5cb3ff.svg)
 
-# About EOSIO Labs
+# About ARISEN Labs
 
-EOSIO Labs repositories are experimental.  Developers in the community are encouraged to use EOSIO Labs repositories as the basis for code and concepts to incorporate into their applications. Community members are also welcome to contribute and further develop these repositories. Since these repositories are not supported by Block.one, we may not provide responses to issue reports, pull requests, updates to functionality, or other requests from the community, and we encourage the community to take responsibility for these.
+ARISEN Labs repositories are experimental.  Developers in the community are encouraged to use ARISEN Labs repositories as the basis for code and concepts to incorporate into their applications. Community members are also welcome to contribute and further develop these repositories. Since these repositories are not supported by Block.one, we may not provide responses to issue reports, pull requests, updates to functionality, or other requests from the community, and we encourage the community to take responsibility for these.
 
 ## Overview
 
 The Universal Authenticator Library creates a single universal API which allows app developers to integrate ***multiple*** signature providers with just a few lines of code. This is done through custom `Authenticators`.
 
-An `Authenticator` represents the bridge between [UAL](https://github.com/EOSIO/universal-authenticator-library) and a custom signing method.
+An `Authenticator` represents the bridge between [UAL](https://github.com/ARISEN/universal-authenticator-library) and a custom signing method.
 
 A developer that wishes to add support for their signature provider to UAL must create an `Authenticator` by implementing 2 classes. An `Authenticator` and a `User`.
 
@@ -20,7 +20,7 @@ The `Authenticator` class represents the business logic behind the renderer, han
 
 Logging in returns 1 or more User objects. A `User` object provides the ability for an app developer to request the app `User` sign a transaction using whichever authenticator they selected when logging in.
 
-In this tutorial I'll walk through the steps of implementing a custom `UAL Authenticator`, we'll be creating a [ual-ledger](https://github.com/EOSIO/ual-ledger) Authenticator. I'll try to explain some of the implementation specific details for `ual-ledger` and show examples of other UAL Authenticators.
+In this tutorial I'll walk through the steps of implementing a custom `UAL Authenticator`, we'll be creating a [ual-ledger](https://github.com/ARISEN/ual-ledger) Authenticator. I'll try to explain some of the implementation specific details for `ual-ledger` and show examples of other UAL Authenticators.
 
 Each step in this tutorial has a correlating branch on github labeled `step-1`, `step-2`, etc. Each step assumes you are starting at the correlating branch.
 
@@ -32,7 +32,7 @@ At the end we'll test the custom Authenticator with an example app found in [exa
 
 
 ```bash
-~ git clone git@github.com:EOSIO/ual-authenticator-walkthrough.git
+~ git clone git@github.com:ARISEN/ual-authenticator-walkthrough.git
 ~ cd ual-authenticator-walkthrough/examples/authenticator
 ~ yarn
 ```
@@ -55,15 +55,15 @@ export * from './Ledger'
 export * from './LedgerUser'
 ```
 
-#### View the completed [Ledger.js](https://github.com/EOSIO/ual-authenticator-walkthrough/blob/step-2/example/authenticator/src/Ledger.js)
-#### View the completed  [LedgerUser.js](https://github.com/EOSIO/ual-authenticator-walkthrough/blob/step-2/example/authenticator/src/LedgerUser.js)
+#### View the completed [Ledger.js](https://github.com/ARISEN/ual-authenticator-walkthrough/blob/step-2/example/authenticator/src/Ledger.js)
+#### View the completed  [LedgerUser.js](https://github.com/ARISEN/ual-authenticator-walkthrough/blob/step-2/example/authenticator/src/LedgerUser.js)
 
 
 ## **Step 3**: Implementing the `Authenticator` class
 
 The internal business logic of each Authenticator method will depend on the signing method you are using. The only limitations are the input/return types must match the abstract method it is implementing. 
 
-Although not all methods may be necessary for your `Authenticator`, you're required to implement ***all*** abstract methods from the base [Authenticator](https://github.com/EOSIO/universal-authenticator-library/blob/develop/src/Authenticator.ts) class.
+Although not all methods may be necessary for your `Authenticator`, you're required to implement ***all*** abstract methods from the base [Authenticator](https://github.com/ARISEN/universal-authenticator-library/blob/develop/src/Authenticator.ts) class.
 
 The key methods here are `init, getStyle, login, logout`.
 
@@ -87,7 +87,7 @@ The key methods here are `init, getStyle, login, logout`.
 
     **Here are variations of `login()` with a brief description of the different approaches.**
 
-   * [ual-ledger](https://github.com/EOSIO/ual-ledger/blob/develop/src/Ledger.ts#L48) - Ledger requires an `accountName` and calls `requiresGetKeyConfirmation` to determine if the app user has already confirmed the public key from their ledger device, if so they won't need to give permission again. By calling `LedgerUser.isAccountValid()` the authenticator utilizes the  [eosjs-ledger-signature-provider](https://github.com/EOSIO/eosjs-ledger-signature-provider) and communicates with the ledger device through the `U2F` protocol.
+   * [ual-ledger](https://github.com/ARISEN/ual-ledger/blob/develop/src/Ledger.ts#L48) - Ledger requires an `accountName` and calls `requiresGetKeyConfirmation` to determine if the app user has already confirmed the public key from their ledger device, if so they won't need to give permission again. By calling `LedgerUser.isAccountValid()` the authenticator utilizes the  [eosjs-ledger-signature-provider](https://github.com/ARISEN/eosjs-ledger-signature-provider) and communicates with the ledger device through the `U2F` protocol.
       ```javascript
       async login(accountName) {
         for (const chain of this.chains) {
@@ -107,7 +107,7 @@ The key methods here are `init, getStyle, login, logout`.
       }
       ```
 
-    * [ual-scatter](https://github.com/EOSIO/ual-scatter/blob/develop/src/Scatter.ts#L91) - Scatter does not require an `accountName` parameter and uses the [Scatter-JS](https://github.com/GetScatter/scatter-js) library to communicate with [Scatter Desktop](https://get-scatter.com/).
+    * [ual-scatter](https://github.com/ARISEN/ual-scatter/blob/develop/src/Scatter.ts#L91) - Scatter does not require an `accountName` parameter and uses the [Scatter-JS](https://github.com/GetScatter/scatter-js) library to communicate with [Scatter Desktop](https://get-scatter.com/).
         ```javascript
         async login() {
           try {
@@ -126,7 +126,7 @@ The key methods here are `init, getStyle, login, logout`.
           }
         }
         ```
-    * [ual-lynx](https://github.com/EOSIO/ual-lynx/blob/develop/src/Lynx.ts#L102) - Lynx injects a `lynxMobile` object into the browsers global window object, by accessing `lynxMobile` we can call `requestSetAccount` and receive an object containing the account information of the account logged into the Lynx Wallet. 
+    * [ual-lynx](https://github.com/ARISEN/ual-lynx/blob/develop/src/Lynx.ts#L102) - Lynx injects a `lynxMobile` object into the browsers global window object, by accessing `lynxMobile` we can call `requestSetAccount` and receive an object containing the account information of the account logged into the Lynx Wallet. 
 
       ```javascript
       async login() {
@@ -150,7 +150,7 @@ The key methods here are `init, getStyle, login, logout`.
 
     **Variations of `logout()`**
 
-    * [ual-ledger](https://github.com/EOSIO/ual-ledger/blob/develop/src/Ledger.ts#L65) - The [eosjs-ledger-signature-provider](https://github.com/EOSIO/eosjs-ledger-signature-provider) performs a simple caching of public keys that need to be cleared on logout. We accomplish this by calling `signatureProvider.clearCachedKeys()` and remove the logged in users by reassigning `this.users` to an empty array.
+    * [ual-ledger](https://github.com/ARISEN/ual-ledger/blob/develop/src/Ledger.ts#L65) - The [eosjs-ledger-signature-provider](https://github.com/ARISEN/eosjs-ledger-signature-provider) performs a simple caching of public keys that need to be cleared on logout. We accomplish this by calling `signatureProvider.clearCachedKeys()` and remove the logged in users by reassigning `this.users` to an empty array.
 
       ```javascript
       async logout() {
@@ -169,7 +169,7 @@ The key methods here are `init, getStyle, login, logout`.
       }
       ```
 
-    * [ual-scatter](https://github.com/EOSIO/ual-scatter/blob/develop/src/Scatter.ts#L108) - Calling `this.scatter.logout()` removes the `Identity` from scatter utilizing scatters built in method for logging out.
+    * [ual-scatter](https://github.com/ARISEN/ual-scatter/blob/develop/src/Scatter.ts#L108) - Calling `this.scatter.logout()` removes the `Identity` from scatter utilizing scatters built in method for logging out.
       ```javascript
       async logout() {
         try {
@@ -181,23 +181,23 @@ The key methods here are `init, getStyle, login, logout`.
         }
       }
       ```
-    * [ual-lynx](https://github.com/EOSIO/ual-scatter/blob/develop/src/Scatter.ts#L108) - Since lynx does not provide a method of logging out we simple reassign `this.users` to an empty array.
+    * [ual-lynx](https://github.com/ARISEN/ual-scatter/blob/develop/src/Scatter.ts#L108) - Since lynx does not provide a method of logging out we simple reassign `this.users` to an empty array.
 
         ```javascript
         async logout() {
           this.users = []
         }
         ```
-#### View the completed [Ledger.js](https://github.com/EOSIO/ual-authenticator-walkthrough/blob/step-4/example/authenticator/src/Ledger.js)
+#### View the completed [Ledger.js](https://github.com/ARISEN/ual-authenticator-walkthrough/blob/step-4/example/authenticator/src/Ledger.js)
 
 
 ## **Step 4**: Implementing the `User` class
 
-You are required to implement all abstract methods from the base [User](https://github.com/EOSIO/universal-authenticator-library/blob/develop/src/User.ts) class.
+You are required to implement all abstract methods from the base [User](https://github.com/ARISEN/universal-authenticator-library/blob/develop/src/User.ts) class.
 
 The main methods to be implemented here are `getKeys, signTransaction, signArbitrary`.
 
-  1.  **`getKeys()`**  - Calling this method should return an array of public keys 🔑. How the authenticator gets those keys depends on the signing method you are using and what protocol it uses. For example, `ual-ledger` uses the [eosjs-ledger-signature-provider](https://github.com/EOSIO/eosjs-ledger-signature-provider) to communicate with the Ledger device through the U2F protocol and `ual-scatter` simply returns the keys it has already received from the inital call to `scatter.getIdentity`.
+  1.  **`getKeys()`**  - Calling this method should return an array of public keys 🔑. How the authenticator gets those keys depends on the signing method you are using and what protocol it uses. For example, `ual-ledger` uses the [eosjs-ledger-signature-provider](https://github.com/ARISEN/eosjs-ledger-signature-provider) to communicate with the Ledger device through the U2F protocol and `ual-scatter` simply returns the keys it has already received from the inital call to `scatter.getIdentity`.
 
       **Here are variations of `getKeys()`**
       * `ual-ledger`
@@ -229,7 +229,7 @@ The main methods to be implemented here are `getKeys, signTransaction, signArbit
         }
         ```
 
-  2. **`signTransaction(transaction, config)`** - Exposes the same API as `Api.transact` in [eosjs](https://github.com/EOSIO/eosjs/blob/develop/src/eosjs-api.ts).
+  2. **`signTransaction(transaction, config)`** - Exposes the same API as `Api.transact` in [eosjs](https://github.com/ARISEN/eosjs/blob/develop/src/eosjs-api.ts).
 
   3. **`signArbitrary(publicKey, data, helpText)`** - A utility function to sign arbitrary data. If your authenticator does not support this type of signing you can simple return an error with the correct message.
 
@@ -246,7 +246,7 @@ The main methods to be implemented here are `getKeys, signTransaction, signArbit
       }
       ```
 
-#### View the completed [LedgerUser.js](https://github.com/EOSIO/ual-authenticator-walkthrough/blob/step-5/example/authenticator/src/LedgerUser.js)
+#### View the completed [LedgerUser.js](https://github.com/ARISEN/ual-authenticator-walkthrough/blob/step-5/example/authenticator/src/LedgerUser.js)
 
 ## **Step 5**: Test your Authenticator 🔑🔓
 Now that we've implemented all the abstract methods on our `Ledger` and `LedgerUser` classes lets test them in the example react app provided in [examples](./examples/app).
@@ -265,6 +265,6 @@ Check out the [Contributing](./CONTRIBUTING.md) guide and please adhere to the [
 
 ## Important
 
-See LICENSE for copyright and license terms.  Block.one makes its contribution on a voluntary basis as a member of the EOSIO community and is not responsible for ensuring the overall performance of the software or any related applications.  We make no representation, warranty, guarantee or undertaking in respect of the software or any related documentation, whether expressed or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall we be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the software or documentation or the use or other dealings in the software or documentation. Any test results or performance figures are indicative and will not reflect performance under all conditions.  Any reference to any third party or third-party product, service or other resource is not an endorsement or recommendation by Block.one.  We are not responsible, and disclaim any and all responsibility and liability, for your use of or reliance on any of these resources. Third-party resources may be updated, changed or terminated at any time, so the information here may be out of date or inaccurate.  Any person using or offering this software in connection with providing software, goods or services to third parties shall advise such third parties of these license terms, disclaimers and exclusions of liability.  Block.one, EOSIO, EOSIO Labs, EOS, the heptahedron and associated logos are trademarks of Block.one.
+See LICENSE for copyright and license terms.  Block.one makes its contribution on a voluntary basis as a member of the ARISEN community and is not responsible for ensuring the overall performance of the software or any related applications.  We make no representation, warranty, guarantee or undertaking in respect of the software or any related documentation, whether expressed or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall we be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the software or documentation or the use or other dealings in the software or documentation. Any test results or performance figures are indicative and will not reflect performance under all conditions.  Any reference to any third party or third-party product, service or other resource is not an endorsement or recommendation by Block.one.  We are not responsible, and disclaim any and all responsibility and liability, for your use of or reliance on any of these resources. Third-party resources may be updated, changed or terminated at any time, so the information here may be out of date or inaccurate.  Any person using or offering this software in connection with providing software, goods or services to third parties shall advise such third parties of these license terms, disclaimers and exclusions of liability.  Block.one, ARISEN, ARISEN Labs, RSN, the heptahedron and associated logos are trademarks of Block.one.
 
 Wallets and related components are complex software that require the highest levels of security.  If incorrectly built or used, they may compromise users’ private keys and digital assets. Wallet applications and related components should undergo thorough security evaluations before being used.  Only experienced developers should work with this software.

@@ -6,10 +6,10 @@ import { UALProvider, withUAL } from 'ual-reactjs-renderer'
 const receiver = process.env.REACT_APP_TO
 const getTransaction = (account) => ({
   actions: [{
-    account: 'eosio.token',
+    account: 'arisen.token',
     name: 'transfer',
     authorization: [{ actor: account, permission: 'active' }],
-    data: { from: account, to: receiver, quantity: '0.0001 EOS', memo: '' },
+    data: { from: account, to: receiver, quantity: '0.0001 RIX', memo: '' },
   }],
 })
 
@@ -52,7 +52,7 @@ class TestApp extends Component {
         )
       }
       <button type='button' onClick={this.transfer} style={{ ...styles.button, ...styles.blueBG }}>
-        <p style={styles.baseText}>{`Transfer 1 EOS`}</p>
+        <p style={styles.baseText}>{`Transfer 1 RIX`}</p>
       </button>
       <button type='button' onClick={this.props.ual.logout} style={styles.logout}>
         <p>Logout</p>
