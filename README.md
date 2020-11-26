@@ -2,11 +2,6 @@
 
 This tutorial walks through the steps required to create a [UAL](https://github.com/ARISEN/universal-authenticator-library) for Ledger [Authenticator](https://github.com/ARISEN/universal-authenticator-library/blob/develop/src/Authenticator.ts). 
 
-![ARISEN Labs](https://img.shields.io/badge/ARISEN-Labs-5cb3ff.svg)
-
-# About ARISEN Labs
-
-ARISEN Labs repositories are experimental.  Developers in the community are encouraged to use ARISEN Labs repositories as the basis for code and concepts to incorporate into their applications. Community members are also welcome to contribute and further develop these repositories. Since these repositories are not supported by Block.one, we may not provide responses to issue reports, pull requests, updates to functionality, or other requests from the community, and we encourage the community to take responsibility for these.
 
 ## Overview
 
@@ -20,7 +15,7 @@ The `Authenticator` class represents the business logic behind the renderer, han
 
 Logging in returns 1 or more User objects. A `User` object provides the ability for an app developer to request the app `User` sign a transaction using whichever authenticator they selected when logging in.
 
-In this tutorial I'll walk through the steps of implementing a custom `UAL Authenticator`, we'll be creating a [ual-ledger](https://github.com/ARISEN/ual-ledger) Authenticator. I'll try to explain some of the implementation specific details for `ual-ledger` and show examples of other UAL Authenticators.
+In this tutorial I'll walk through the steps of implementing a custom `UAL Authenticator`, we'll be creating a [arisen-ual-ledger](https://github.com/arisenio/arisen-ual-ledger) Authenticator. I'll try to explain some of the implementation specific details for `arisen-ual-ledger` and show examples of other UAL Authenticators.
 
 Each step in this tutorial has a correlating branch on github labeled `step-1`, `step-2`, etc. Each step assumes you are starting at the correlating branch.
 
@@ -87,7 +82,7 @@ The key methods here are `init, getStyle, login, logout`.
 
     **Here are variations of `login()` with a brief description of the different approaches.**
 
-   * [ual-ledger](https://github.com/ARISEN/ual-ledger/blob/develop/src/Ledger.ts#L48) - Ledger requires an `accountName` and calls `requiresGetKeyConfirmation` to determine if the app user has already confirmed the public key from their ledger device, if so they won't need to give permission again. By calling `LedgerUser.isAccountValid()` the authenticator utilizes the  [eosjs-ledger-signature-provider](https://github.com/ARISEN/eosjs-ledger-signature-provider) and communicates with the ledger device through the `U2F` protocol.
+   * [arisen-ual-ledger](https://github.com/arisenio/arisen-ual-ledger) - Ledger requires an `accountName` and calls `requiresGetKeyConfirmation` to determine if the app user has already confirmed the public key from their ledger device, if so they won't need to give permission again. By calling `LedgerUser.isAccountValid()` the authenticator utilizes the  [arisenjs-ledger-signature-provider](https://github.com/ARISEN/arisenjs-ledger-signature-provider) and communicates with the ledger device through the `U2F` protocol.
       ```javascript
       async login(accountName) {
         for (const chain of this.chains) {
@@ -107,26 +102,26 @@ The key methods here are `init, getStyle, login, logout`.
       }
       ```
 
-    * [ual-scatter](https://github.com/ARISEN/ual-scatter/blob/develop/src/Scatter.ts#L91) - Scatter does not require an `accountName` parameter and uses the [Scatter-JS](https://github.com/GetScatter/scatter-js) library to communicate with [Scatter Desktop](https://get-scatter.com/).
+    * [arisen-ual-peepsid](https://github.com/arisenio/arisen-ual-peepsid) - PeepsID does not require an `accountName` parameter and uses the [PeepsID-JS](https://github.com/peepsx/peepsid-js) library to communicate with [PeepsID Desktop](https://github.com/peepsx/peepsid-desktop).
         ```javascript
         async login() {
           try {
             for (const chain of this.chains) {
-              const user = new ScatterUser(chain, this.scatter)
+              const user = new PeepsIDUser(chain, this.PeepsID)
               await user.getKeys()
               this.users.push(user)
             }
 
             return this.users
           } catch (e) {
-            throw new UALScatterError(
+            throw new UALPeepsIDError(
               'Unable to login',
               UALErrorType.Login,
               e)
           }
         }
         ```
-    * [ual-lynx](https://github.com/ARISEN/ual-lynx/blob/develop/src/Lynx.ts#L102) - Lynx injects a `lynxMobile` object into the browsers global window object, by accessing `lynxMobile` we can call `requestSetAccount` and receive an object containing the account information of the account logged into the Lynx Wallet. 
+    * [arisen-ual-lynx](https://github.com/arisenio/arisen-ual-lynx) - Lynx injects a `lynxMobile` object into the browsers global window object, by accessing `lynxMobile` we can call `requestSetAccount` and receive an object containing the account information of the account logged into the Lynx Wallet. 
 
       ```javascript
       async login() {
@@ -150,7 +145,7 @@ The key methods here are `init, getStyle, login, logout`.
 
     **Variations of `logout()`**
 
-    * [ual-ledger](https://github.com/ARISEN/ual-ledger/blob/develop/src/Ledger.ts#L65) - The [eosjs-ledger-signature-provider](https://github.com/ARISEN/eosjs-ledger-signature-provider) performs a simple caching of public keys that need to be cleared on logout. We accomplish this by calling `signatureProvider.clearCachedKeys()` and remove the logged in users by reassigning `this.users` to an empty array.
+    * [arisen-ual-ledger](https://github.com/arisenio/arisen-ual-ledger) - The [arisenjs-ledger-signature-provider](https://github.com/ARISEN/arisenjs-ledger-signature-provider) performs a simple caching of public keys that need to be cleared on logout. We accomplish this by calling `signatureProvider.clearCachedKeys()` and remove the logged in users by reassigning `this.users` to an empty array.
 
       ```javascript
       async logout() {
@@ -169,19 +164,19 @@ The key methods here are `init, getStyle, login, logout`.
       }
       ```
 
-    * [ual-scatter](https://github.com/ARISEN/ual-scatter/blob/develop/src/Scatter.ts#L108) - Calling `this.scatter.logout()` removes the `Identity` from scatter utilizing scatters built in method for logging out.
+    * [arisen-ual-peepsid](https://github.com/arisenio/arisen-ual-peepsid) - Calling `this.PeepsID.logout()` removes the `Identity` from PeepsID utilizing PeepsIDs built in method for logging out.
       ```javascript
       async logout() {
         try {
-          this.scatter.logout()
+          this.PeepsID.logout()
         } catch (error) {
-          throw new UALScatterError('Error occurred during logout',
+          throw new UALPeepsIDError('Error occurred during logout',
             UALErrorType.Logout,
             error)
         }
       }
       ```
-    * [ual-lynx](https://github.com/ARISEN/ual-scatter/blob/develop/src/Scatter.ts#L108) - Since lynx does not provide a method of logging out we simple reassign `this.users` to an empty array.
+    * [arisen-ual-lynx](https://github.com/arisenio/arisen-ual-lynx) - Since lynx does not provide a method of logging out we simple reassign `this.users` to an empty array.
 
         ```javascript
         async logout() {
@@ -197,10 +192,10 @@ You are required to implement all abstract methods from the base [User](https://
 
 The main methods to be implemented here are `getKeys, signTransaction, signArbitrary`.
 
-  1.  **`getKeys()`**  - Calling this method should return an array of public keys 🔑. How the authenticator gets those keys depends on the signing method you are using and what protocol it uses. For example, `ual-ledger` uses the [eosjs-ledger-signature-provider](https://github.com/ARISEN/eosjs-ledger-signature-provider) to communicate with the Ledger device through the U2F protocol and `ual-scatter` simply returns the keys it has already received from the inital call to `scatter.getIdentity`.
+  1.  **`getKeys()`**  - Calling this method should return an array of public keys 🔑. How the authenticator gets those keys depends on the signing method you are using and what protocol it uses. For example, `arisen-ual-ledger` uses the [arisenjs-ledger-signature-provider](https://github.com/ARISEN/arisenjs-ledger-signature-provider) to communicate with the Ledger device through the U2F protocol and `arisen-ual-peepsid` simply returns the keys it has already received from the inital call to `PeepsID.getIdentity`.
 
       **Here are variations of `getKeys()`**
-      * `ual-ledger`
+      * `arisen-ual-ledger`
         ```javascript
         async getKeys() {
           try {
@@ -215,11 +210,11 @@ The main methods to be implemented here are `getKeys, signTransaction, signArbit
           }
         }
         ```
-      * `ual-scatter`
+      * `arisen-ual-peepsid`
         ```javascript
         async getKeys() {
           if (!this.keys || this.keys.length === 0) {
-            // `refreshIdentity` calls `scatter.getIdentity` then
+            // `refreshIdentity` calls `PeepsID.getIdentity` then
             // sets the `keys` and `accountName` properties on the 
             // `User` class
             await this.refreshIdentity()
@@ -229,7 +224,7 @@ The main methods to be implemented here are `getKeys, signTransaction, signArbit
         }
         ```
 
-  2. **`signTransaction(transaction, config)`** - Exposes the same API as `Api.transact` in [eosjs](https://github.com/ARISEN/eosjs/blob/develop/src/eosjs-api.ts).
+  2. **`signTransaction(transaction, config)`** - Exposes the same API as `Api.transact` in [arisenjs](https://github.com/ARISEN/arisenjs/blob/develop/src/arisenjs-api.ts).
 
   3. **`signArbitrary(publicKey, data, helpText)`** - A utility function to sign arbitrary data. If your authenticator does not support this type of signing you can simple return an error with the correct message.
 
